@@ -6,7 +6,9 @@
 		1. Setting up Your Environment 
 			- I used [Isaac Sim for Window](https://docs.isaacsim.omniverse.nvidia.com/5.1.0/installation/quick-install.html), not download omniverse kit, since Isaac Sim, built with omniverse, 
 			- But downloaded the given [Factory Assets](https://dli-lms.s3.amazonaws.com/assets/s-ov-15-v1/OpenUSD_Lab-Assets.zip)
-		2. Navigation Basics - 
+		2. Navigation Basics
+		    - USD Composer is a reference app built on the NVIDIA Omniverse that lets you create, edit, and explore Universal Scene Description (USD) scenes, and the core USD concepts you learn in it apply across all USD-based tools and workflows.
+
 
 	2. Module 1: Building an OpenUSD Component
 		1. Overview
