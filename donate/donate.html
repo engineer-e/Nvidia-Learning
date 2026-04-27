@@ -1,65 +1,16 @@
 <html>
-<head>
+    
   <script 
-    src="https://www.paypal.com/sdk/js?client-id=BAAODtdbcjxbXS8iq106JOlmEalZb_JmRn99xYh00UUKpol3cbj15yJDSgdiX73Fm02bGBzuOgvoTostgE&components=hosted-buttons&disable-funding=venmo&currency=EUR">
-  </script>
-
-  <style>
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-
-    td {
-      text-align: center;
-      padding: 20px;
-      vertical-align: middle;
-    }
-
-    .cell {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 120px;
-    }
-  </style>
-</head>
-
-<body>
-
-<table border="1">
-
-  <tr>
-    <td><div id="btn1" class="cell"></div></td>
-    <td><div id="btn2" class="cell"></div></td>
-    <td><div id="btn3" class="cell"></div></td>
-  </tr>
-
-  <tr>
-    <td><div id="btn4" class="cell"></div></td>
-    <td><div id="btn5" class="cell"></div></td>
-    <td><div id="btn6" class="cell"></div></td>
-  </tr>
-
-</table>
-
-<script>
-  const buttonIds = [
-    "GEA4EM2BAZFES",
-    "GEA4EM2BAZFES",
-    "GEA4EM2BAZFES",
-    "GEA4EM2BAZFES",
-    "GEA4EM2BAZFES",
-    "GEA4EM2BAZFES"
-  ];
-
-  buttonIds.forEach((id, i) => {
-    paypal.HostedButtons({
-      hostedButtonId: id,
-    }).render("#btn" + (i + 1));
-  });
+  src="https://www.paypal.com/sdk/js?client-id=BAAODtdbcjxbXS8iq106JOlmEalZb_JmRn99xYh00UUKpol3cbj15yJDSgdiX73Fm02bGBzuOgvoTostgE&components=hosted-buttons&disable-funding=venmo&currency=EUR">
 </script>
 
-</body>
+<body>
+    <div id="paypal-container-GEA4EM2BAZFES"></div>
+<script>
+  paypal.HostedButtons({
+    hostedButtonId: "GEA4EM2BAZFES",
+  }).render("#paypal-container-GEA4EM2BAZFES")
+</script>
+</body> 
+
 </html>
