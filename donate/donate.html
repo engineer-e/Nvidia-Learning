@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Our Project</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- QR Code Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .glass-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+        .qr-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+        .qr-container canvas, .qr-container img {
+            margin: 0 auto;
+            border-radius: 8px;
+        }
+        .qr-logo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 35px;
+            height: 35px;
+            background: white;
+            padding: 4px;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-5xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-16">
+            <h1 class="text-4xl font-extrabold text-slate-900 sm:text-5xl mb-4">
+                Support Our Work
+            </h1>
+            <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+                Choose a contribution method below. Your support helps us keep building and maintaining this project for everyone.
+            </p>
+        </div>
+
+        <!-- Donation Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            
+            <!-- Card 1: 5 Euro -->
+            <div class="glass-card rounded-2xl p-6 flex flex-col items-center text-center">
+                <div class="w-full mb-6">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mb-4">Euro (€)</span>
+                    <h3 class="text-3xl font-bold text-slate-800">€5</h3>
+                    <p class="text-sm text-slate-500 mt-1">Fixed Amount</p>
+                </div>
+                <div class="qr-wrapper bg-white p-3 rounded-xl mb-6 shadow-sm border border-slate-100">
+                    <img src="https://engineer-e.github.io/Nvidia-Learning/donate/image/5 euro.png"  alt="logo">
+                </div>
+                <a href="https://www.paypal.com/ncp/payment/GEA4EM2BAZFES" target="_blank" 
+                   class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors duration-200">
+                    Donate €5
+                </a>
+            </div>
+
+            <!-- Card 2: Any Euro -->
+            <div class="glass-card rounded-2xl p-6 flex flex-col items-center text-center">
+                <div class="w-full mb-6">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 mb-4">Euro (€)</span>
+                    <h3 class="text-3xl font-bold text-slate-800">Custom</h3>
+                    <p class="text-sm text-slate-500 mt-1">Any Amount</p>
+                </div>
+                <div class="qr-wrapper bg-white p-3 rounded-xl mb-6 shadow-sm border border-slate-100">
+                    <img src="https://engineer-e.github.io/Nvidia-Learning/donate/image/euro.png"  alt="logo">
+                </div>
+                <a href="https://www.paypal.com/ncp/payment/Y965KTPAZ8V4L" target="_blank" 
+                   class="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl transition-colors duration-200">
+                    Donate Any €
+                </a>
+            </div>
+
+            <!-- Card 3: 5 Dollar -->
+            <div class="glass-card rounded-2xl p-6 flex flex-col items-center text-center">
+                <div class="w-full mb-6">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 mb-4">US Dollar ($)</span>
+                    <h3 class="text-3xl font-bold text-slate-800">$5</h3>
+                    <p class="text-sm text-slate-500 mt-1">Fixed Amount</p>
+                </div>
+                <div class="qr-wrapper bg-white p-3 rounded-xl mb-6 shadow-sm border border-slate-100">
+                    <img src="https://engineer-e.github.io/Nvidia-Learning/donate/image/5 dollar.png"  alt="logo">
+                </div>
+                <a href="https://www.paypal.com/ncp/payment/GWXZQVNVN9QL2" target="_blank" 
+                   class="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl transition-colors duration-200">
+                    Donate $5
+                </a>
+            </div>
+
+            <!-- Card 4: Any Dollar -->
+            <div class="glass-card rounded-2xl p-6 flex flex-col items-center text-center">
+                <div class="w-full mb-6">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 mb-4">US Dollar ($)</span>
+                    <h3 class="text-3xl font-bold text-slate-800">Custom</h3>
+                    <p class="text-sm text-slate-500 mt-1">Any Amount</p>
+                </div>
+                <div class="qr-wrapper bg-white p-3 rounded-xl mb-6 shadow-sm border border-slate-100">
+                    <img src="https://engineer-e.github.io/Nvidia-Learning/donate/image/dollar.png"  alt="logo">
+                </div>
+                <a href="https://www.paypal.com/ncp/payment/GS8B4ECTLMS6W" target="_blank" 
+                   class="w-full py-3 px-4 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl transition-colors duration-200">
+                    Donate Any $
+                </a>
+            </div>
+
+        </div>
+
+        <!-- Footer Info -->
+        <div class="mt-16 text-center text-slate-400 text-sm">
+            <p>Secure payments processed by PayPal.</p>
+            <p class="mt-2">Scan a QR code with your mobile device to pay instantly.</p>
+        </div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            const qrConfigs = [
+                { id: "qr-1", url: "https://www.paypal.com/ncp/payment/GEA4EM2BAZFES" },
+                { id: "qr-2", url: "https://www.paypal.com/ncp/payment/Y965KTPAZ8V4L" },
+                { id: "qr-3", url: "https://www.paypal.com/ncp/payment/GWXZQVNVN9QL2" },
+                { id: "qr-4", url: "https://www.paypal.com/ncp/payment/GS8B4ECTLMS6W" }
+            ];
+
+            qrConfigs.forEach(config => {
+                new QRCode(document.getElementById(config.id), {
+                    text: config.url,
+                    width: 140,
+                    height: 140,
+                    colorDark: "#1e293b",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H // High error correction to allow for center logo
+                });
+            });
+        };
+    </script>
+</body>
+</html>
