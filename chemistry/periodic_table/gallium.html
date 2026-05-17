@@ -1,0 +1,1649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallium Quantum Orbital, Crystal Growth & Physical Properties Simulator</title>
+    <!-- Tailwind CSS Play CDN Link -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- OrbitControls for full 3D viewport navigation -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b0f19;
+            color: #f3f4f6;
+            overflow-x: hidden;
+        }
+        .code-font {
+            font-family: 'Fira Code', monospace;
+        }
+        /* Custom scrollbars for dashboard panels */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        /* Glassmorphic utilities */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col md:flex-row overflow-hidden bg-[#0b0f19]">
+
+    <!-- LEFT SIDEBAR: Controls & Educational Info -->
+    <aside class="w-full md:w-[440px] flex-shrink-0 flex flex-col h-[50vh] md:h-full border-t md:border-t-0 md:border-r border-slate-800 bg-slate-950/90 z-10 overflow-y-auto order-2 md:order-1">
+        <!-- Header -->
+        <div class="p-6 border-b border-slate-800 flex-shrink-0">
+            <div class="flex items-center space-x-3 mb-2">
+                <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-extrabold text-xl shadow-lg shadow-blue-500/20">
+                    Ga
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                        Gallium Simulator
+                        <span class="text-xs font-mono px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">Z = 31</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">Quantum Orbitals to Multi-Phase Crystals</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stage Switcher Tabs -->
+        <div class="p-4 bg-slate-900/40 border-b border-slate-800/60 flex-shrink-0">
+            <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">Simulation Stage</label>
+            <div class="grid grid-cols-4 gap-1 p-1 bg-slate-950 rounded-lg border border-slate-800">
+                <button id="btn-stage-1" class="py-2 text-[10px] text-center rounded-md font-semibold transition-all duration-200 bg-blue-600 text-white shadow" onclick="switchStage(1)">
+                    <i class="fa-solid fa-atom block mb-1 text-sm"></i>
+                    1. Orbital
+                </button>
+                <button id="btn-stage-2" class="py-2 text-[10px] text-center rounded-md font-semibold transition-all duration-200 text-slate-400 hover:text-white" onclick="switchStage(2)">
+                    <i class="fa-solid fa-cubes block mb-1 text-sm"></i>
+                    2. Lattice
+                </button>
+                <button id="btn-stage-3" class="py-2 text-[10px] text-center rounded-md font-semibold transition-all duration-200 text-slate-400 hover:text-white" onclick="switchStage(3)">
+                    <i class="fa-solid fa-mountain block mb-1 text-sm"></i>
+                    3. Growth
+                </button>
+                <button id="btn-stage-4" class="py-2 text-[10px] text-center rounded-md font-semibold transition-all duration-200 text-slate-400 hover:text-white" onclick="switchStage(4)">
+                    <i class="fa-solid fa-flask block mb-1 text-sm"></i>
+                    4. Physics
+                </button>
+            </div>
+        </div>
+
+        <!-- Dynamic Content and Controls Panel -->
+        <div class="p-6 flex-grow space-y-6">
+            
+            <!-- STAGE 1: Atomic Orbital Settings -->
+            <div id="controls-stage-1" class="space-y-4">
+                <div class="border-l-2 border-blue-500 pl-3">
+                    <h2 class="font-bold text-white text-md">Single Atom & Orbital</h2>
+                    <p class="text-xs text-slate-400 mt-1">Explore the isolated ground-state gallium atom wavefunction.</p>
+                </div>
+
+                <div class="p-4 rounded-xl bg-slate-900/50 border border-slate-800/80 space-y-3">
+                    <div class="flex justify-between text-xs">
+                        <span class="text-slate-400">Valence Shell:</span>
+                        <span class="text-blue-400 font-semibold">4s² 4p¹</span>
+                    </div>
+                    <div class="flex justify-between text-xs">
+                        <span class="text-slate-400">Inner Shell configuration:</span>
+                        <span class="text-purple-400 font-semibold">[Ar] 3d¹⁰</span>
+                    </div>
+                    <div class="flex justify-between text-xs">
+                        <span class="text-slate-400">Selected Wave:</span>
+                        <span id="txt-selected-wave" class="text-emerald-400 font-semibold">Nested Shells (s+p+d)</span>
+                    </div>
+                </div>
+
+                <!-- Sliders and selectors -->
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-xs text-slate-400 block mb-1.5">Wavefunction Representation</label>
+                        <select id="select-orbital-type" onchange="updateOrbitalType(this.value)" class="w-full bg-slate-900 border border-slate-800 text-slate-200 text-xs rounded-lg p-2.5 outline-none focus:border-blue-500">
+                            <option value="all">Gallium Nested Shells (Full Shells s + p + d)</option>
+                            <option value="s">s-Subshells (l=0, Core) - Spherical Cloud</option>
+                            <option value="p">p-Subshells (l=1, Valence) - Dumbbell Cloud</option>
+                            <option value="d">d-Subshells (l=2, Intermediary) - Cloverleaf Cloud</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-300 font-medium">Core Nucleus Pulse Speed</span>
+                            <span id="val-orbital-size" class="text-slate-400 font-mono">1.0x</span>
+                        </div>
+                        <input id="slider-orbital-size" type="range" min="0.2" max="2.5" step="0.1" value="1.0" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-300 font-medium">Shell Point Transparency</span>
+                            <span id="val-s-opacity" class="text-slate-400 font-mono">0.65</span>
+                        </div>
+                        <input id="slider-s-opacity" type="range" min="0.1" max="1.0" step="0.05" value="0.65" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                    </div>
+                </div>
+
+                <div class="text-xs leading-relaxed text-slate-400 bg-slate-900/30 p-3.5 rounded-lg border border-slate-800/50">
+                    <i class="fa-solid fa-circle-info text-blue-400 mr-1.5"></i>
+                    The highly directional lobes of the <strong class="text-white">4p orbital</strong> represent the molecular coordinates where Gallium seeks head-on overlap to form stable covalent dimers.
+                </div>
+            </div>
+
+            <!-- STAGE 2: Lattice Assembly Settings -->
+            <div id="controls-stage-2" class="space-y-4 hidden">
+                <div class="border-l-2 border-purple-500 pl-3">
+                    <h2 class="font-bold text-white text-md">Orthorhombic Unit Cell</h2>
+                    <p class="text-xs text-slate-400 mt-1">8 atoms forming 4 covalent Ga₂ dimers (Space Group Cmca).</p>
+                </div>
+
+                <div class="p-3.5 rounded-xl bg-slate-900/50 border border-slate-800 space-y-2 text-xs">
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Dimensions (Å):</span>
+                        <span class="text-white font-mono">a=4.52, b=7.66, c=4.53</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Primary bond (Dimer):</span>
+                        <span class="text-red-400 font-semibold font-mono">2.44 Å (Covalent)</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Secondary bonds:</span>
+                        <span class="text-blue-400 font-mono">2.70 - 2.79 Å (Metallic)</span>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-300 font-medium">Crystal Surface Transparency</span>
+                            <span id="val-crystal-opacity" class="text-slate-400 font-mono">0.40</span>
+                        </div>
+                        <input id="slider-crystal-opacity" type="range" min="0.0" max="1.0" step="0.05" value="0.40" oninput="updateCrystalOpacity(this.value)" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-purple-500">
+                    </div>
+
+                    <button class="w-full py-2.5 px-4 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs flex items-center justify-center space-x-2 shadow transition-all duration-200" onclick="highlightDimers()">
+                        <i class="fa-solid fa-compress"></i>
+                        <span id="btn-txt-dimer">Isolate Ga₂ Dimers</span>
+                    </button>
+                    
+                    <div class="flex items-center space-x-3 pt-1">
+                        <input type="checkbox" id="check-show-orbitals" checked class="w-4 h-4 rounded text-purple-600 bg-slate-800 border-slate-700 accent-purple-500">
+                        <label for="check-show-orbitals" class="text-xs text-slate-300 select-none">Draw local atomic 4p orbitals</label>
+                    </div>
+
+                    <div class="flex items-center space-x-3">
+                        <input type="checkbox" id="check-show-metallic" checked class="w-4 h-4 rounded text-purple-600 bg-slate-800 border-slate-700 accent-purple-500">
+                        <label for="check-show-metallic" class="text-xs text-slate-300 select-none">Show secondary metallic bonds</label>
+                    </div>
+                </div>
+
+                <div class="text-xs leading-relaxed text-slate-400 bg-slate-900/30 p-3.5 rounded-lg border border-slate-800/50">
+                    <i class="fa-solid fa-circle-info text-purple-400 mr-1.5"></i>
+                    Adjust the <strong class="text-white">Transparency Slider</strong> above to peek inside the reflective silvery crystal grains and examine the interior molecular dimer bonds!
+                </div>
+            </div>
+
+            <!-- STAGE 3: Crystal Growth Settings -->
+            <div id="controls-stage-3" class="space-y-4 hidden">
+                <div class="border-l-2 border-emerald-500 pl-3">
+                    <h2 class="font-bold text-white text-md">Anisotropic Crystal Growth</h2>
+                    <p class="text-xs text-slate-400 mt-1">Scale up from atoms into physical crystal blades.</p>
+                </div>
+
+                <!-- Growth Simulation Controls -->
+                <div class="p-4 rounded-xl bg-slate-900/50 border border-slate-800 space-y-4">
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="btn-grow-step" class="py-2.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs flex items-center justify-center space-x-2 shadow transition" onclick="growStep()">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Add Atoms</span>
+                        </button>
+                        <button id="btn-grow-auto" class="py-2.5 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs flex items-center justify-center space-x-2 shadow border border-slate-700 transition" onclick="toggleAutoGrow()">
+                            <i class="fa-solid fa-play" id="icon-auto-grow"></i>
+                            <span id="txt-auto-grow">Auto Grow</span>
+                        </button>
+                    </div>
+                    <button class="w-full py-2 px-3 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white font-semibold text-xs flex items-center justify-center space-x-2 border border-slate-800/60 transition" onclick="resetGrowth()">
+                        <i class="fa-solid fa-rotate-right"></i>
+                        <span>Reset Seed Crystal</span>
+                    </button>
+                </div>
+
+                <!-- Growth Real-time Stats -->
+                <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800/80 space-y-2.5">
+                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Crystal Profile</div>
+                    <div class="flex justify-between text-xs">
+                        <span class="text-slate-400">Total Atoms Simulated:</span>
+                        <span id="stat-atoms" class="text-emerald-400 font-bold font-mono">8</span>
+                    </div>
+                    <div class="flex justify-between text-xs">
+                        <span class="text-slate-400">Unit Cells Formed:</span>
+                        <span id="stat-cells" class="text-white font-mono">1</span>
+                    </div>
+                    <div class="flex justify-between text-xs">
+                        <span class="text-slate-400">Lattice Aspect Ratio (Width / Height):</span>
+                        <span id="stat-ratio" class="text-slate-300 font-semibold font-mono">1.0</span>
+                    </div>
+                    <div class="pt-2 border-t border-slate-900">
+                        <div class="text-slate-400 text-[10px] mb-1">Velocity Hierarchy per Axis:</div>
+                        <div class="space-y-1.5">
+                            <div>
+                                <div class="flex justify-between text-[10px] text-slate-500">
+                                    <span>a-axis [100] (Primary length)</span>
+                                    <span class="text-emerald-400">Very Fast (85% prob)</span>
+                                </div>
+                                <div class="w-full bg-slate-900 h-1 rounded-full overflow-hidden">
+                                    <div class="bg-emerald-500 h-full w-[85%]"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-[10px] text-slate-500">
+                                    <span>c-axis [001] (Secondary width)</span>
+                                    <span class="text-blue-400">Moderate (40% prob)</span>
+                                </div>
+                                <div class="w-full bg-slate-900 h-1 rounded-full overflow-hidden">
+                                    <div class="bg-blue-500 h-full w-[40%]"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-[10px] text-slate-500">
+                                    <span>b-axis [010] (Thickness)</span>
+                                    <span class="text-yellow-500">Very Slow (10% prob)</span>
+                                </div>
+                                <div class="w-full bg-slate-900 h-1 rounded-full overflow-hidden">
+                                    <div class="bg-yellow-500 h-full w-[10%]"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-xs leading-relaxed text-slate-400 bg-slate-900/30 p-3.5 rounded-lg border border-slate-800/50">
+                    <i class="fa-solid fa-wand-magic-sparkles text-emerald-400 mr-1.5"></i>
+                    The crystal grows rapidly in the $a-c$ plane, producing thin, needle-like metallic crystal blades, while stacking along the $b$-axis occurs at a much slower rate.
+                </div>
+            </div>
+
+            <!-- STAGE 4: Physical & Chemical Properties -->
+            <div id="controls-stage-4" class="space-y-5">
+                <div class="border-l-2 border-amber-500 pl-3">
+                    <h2 class="font-bold text-white text-md">Advanced Physics & Chemistry</h2>
+                    <p class="text-xs text-slate-400 mt-1">Simulate multi-phase thermodynamics, acoustic phonons, E-fields, and medium oxidation.</p>
+                </div>
+
+                <!-- NEW: CONTINUOUS SLIDER FOR GRADUAL PHASE TRANSITION -->
+                <div class="space-y-2 p-3 rounded-xl bg-slate-900/40 border border-slate-800">
+                    <div class="flex justify-between text-xs font-semibold">
+                        <span class="text-slate-300">Phase Transition Slider</span>
+                        <span id="val-thermo-temp" class="text-blue-400 font-bold font-mono">1.00 (Solid)</span>
+                    </div>
+                    <!-- Gradual slider set from 0.00 to 3.00 with 0.01 step -->
+                    <input id="slider-thermo-state" type="range" min="0" max="3" step="0.01" value="1.00" oninput="updateThermodynamicState(this.value)" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                    <div class="flex justify-between text-[9px] text-slate-500 font-mono px-1">
+                        <span>0.00 (Frozen 0 K)</span>
+                        <span>1.00 (Solid 20 °C)</span>
+                        <span>2.00 (Liquid Melt)</span>
+                        <span>3.00 (Vaporized)</span>
+                    </div>
+                    <p id="lbl-thermo-desc" class="text-[10px] text-slate-400 pt-1 leading-relaxed">
+                        Gallium-α conventional unit cell sits stable with low thermal noise at room temperature.
+                    </p>
+                </div>
+
+                <!-- Advanced Phonon (Acoustic Wave) Generator -->
+                <div class="space-y-2.5 p-3 rounded-xl bg-slate-900/40 border border-slate-800">
+                    <div class="flex justify-between items-center text-xs mb-1">
+                        <span class="text-slate-300 font-semibold">Acoustic Phonon Wave direction</span>
+                        <select id="select-phonon-axis" onchange="changePhononDirection(this.value)" class="bg-slate-950 border border-slate-800 text-slate-300 text-[10px] rounded p-1 outline-none">
+                            <option value="a">Along a-axis [100] (Fast)</option>
+                            <option value="b">Along b-axis [010] (Slow)</option>
+                            <option value="c">Along c-axis [001] (Fast)</option>
+                        </select>
+                    </div>
+                    <div class="flex gap-2">
+                        <div class="w-1/2">
+                            <div class="flex justify-between text-[10px] text-slate-400 mb-0.5">
+                                <span>Phonon Amplitude</span>
+                                <span id="val-phonon-amp" class="font-mono">0.05x</span>
+                            </div>
+                            <input id="slider-phonon-amp" type="range" min="0" max="0.3" step="0.02" value="0.05" oninput="updatePhononParams()" class="w-full h-1.5 bg-slate-800 rounded appearance-none cursor-pointer accent-amber-500">
+                        </div>
+                        <div class="w-1/2">
+                            <div class="flex justify-between text-[10px] text-slate-400 mb-0.5">
+                                <span>Phonon Frequency</span>
+                                <span id="val-phonon-freq" class="font-mono">1.0x</span>
+                            </div>
+                            <input id="slider-phonon-freq" type="range" min="0.2" max="3" step="0.1" value="1.0" oninput="updatePhononParams()" class="w-full h-1.5 bg-slate-800 rounded appearance-none cursor-pointer accent-amber-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Chemical Medium Changer -->
+                <div class="space-y-1.5 p-3 rounded-xl bg-slate-900/40 border border-slate-800">
+                    <label class="text-xs font-semibold text-slate-400 block mb-1">Chemical Environment (pH medium)</label>
+                    <div class="grid grid-cols-3 gap-1 p-1 bg-slate-950 rounded-lg border border-slate-800">
+                        <button id="btn-med-acid" class="py-1.5 text-[10px] text-center rounded font-semibold transition bg-rose-950/40 text-rose-300 border border-rose-500/20" onclick="changeMedium('acid')">Acidic (pH < 3)</button>
+                        <button id="btn-med-neutral" class="py-1.5 text-[10px] text-center rounded font-semibold transition bg-blue-600 text-white shadow" onclick="changeMedium('neutral')">Neutral (Air)</button>
+                        <button id="btn-med-alkali" class="py-1.5 text-[10px] text-center rounded font-semibold transition bg-emerald-950/40 text-emerald-300 border border-emerald-500/20" onclick="changeMedium('alkali')">Alkaline (pH > 11)</button>
+                    </div>
+                </div>
+
+                <!-- Electrostatics / Conductivity -->
+                <div class="space-y-3 p-3 rounded-xl bg-slate-900/40 border border-slate-800">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-semibold text-slate-400">Anisotropic Conductivity</span>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" id="toggle-elec-field" onchange="toggleElectricalField(this.checked)" class="sr-only peer">
+                            <div class="relative w-8 h-4 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-600 peer-checked:after:bg-white"></div>
+                            <span class="text-[10px] text-slate-300 select-none">Apply E-Field</span>
+                        </label>
+                    </div>
+                    <p class="text-[10px] text-slate-500">Applies an electric field vector along the $a-c$ plane. Free valence electrons flow at high velocity through the close-packed covalent dimers, showing higher electrical conductance than along the $b$-axis.</p>
+                </div>
+
+                <!-- Summary profile -->
+                <div class="p-3 bg-slate-950 border border-slate-800/80 rounded-xl space-y-2 text-[11px] max-h-[140px] overflow-y-auto pr-1">
+                    <div class="flex justify-between border-b border-slate-900 pb-1.5">
+                        <span class="text-slate-500 font-semibold uppercase text-[9px]">Anisotropic Reflectivity:</span>
+                        <span class="text-slate-300">R_a = 74%, R_b = 68%</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-900 pb-1.5">
+                        <span class="text-slate-500 font-semibold uppercase text-[9px]">Latent Heat of Fusion:</span>
+                        <span class="text-slate-300 font-mono">80.1 kJ/kg</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-900 pb-1.5">
+                        <span class="text-slate-500 font-semibold uppercase text-[9px]">Specific Heat Capacity:</span>
+                        <span class="text-slate-300 font-mono">0.373 J/(g·K)</span>
+                    </div>
+                    <div class="flex justify-between pb-1">
+                        <span class="text-slate-500 font-semibold uppercase text-[9px]">Work Function (Optics):</span>
+                        <span class="text-slate-300 font-mono">4.2 eV</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="p-4 bg-slate-950 border-t border-slate-800 text-[11px] text-slate-500 flex justify-between flex-shrink-0">
+            <span>Gallium Lattice Simulator</span>
+            <span>May 2026</span>
+        </div>
+    </aside>
+
+    <!-- RIGHT MAIN WINDOW: 3D Viewport -->
+    <main class="flex-grow h-[50vh] md:h-full relative bg-slate-950 flex flex-col order-1 md:order-2">
+        <!-- Overlay Panel - Top Bar with Legend / Instructions -->
+        <div class="absolute top-4 left-4 right-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 z-20 pointer-events-none">
+            <!-- Viewport Title -->
+            <div class="glass-panel px-4 py-2 rounded-xl flex items-center space-x-3 pointer-events-auto shadow-2xl">
+                <span class="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse"></span>
+                <span id="lbl-viewport-stage" class="text-xs font-bold uppercase tracking-wider text-slate-300">Stage 1: Atomic Profile</span>
+            </div>
+
+            <!-- Orbit Control Tip -->
+            <div class="glass-panel px-3 py-1.5 rounded-lg text-xs text-slate-400 pointer-events-auto flex items-center space-x-2">
+                <i class="fa-solid fa-hand-pointer text-blue-400"></i>
+                <span>Drag to Rotate • Pinch/Scroll to Zoom</span>
+            </div>
+        </div>
+
+        <!-- 3D Canvas Target -->
+        <div id="canvas-container" class="w-full h-full flex-grow relative min-h-[350px]"></div>
+
+        <!-- Bottom Informational Card (Interactive) -->
+        <div class="absolute bottom-4 left-4 right-4 glass-panel p-4 rounded-xl z-20 max-w-2xl mx-auto shadow-2xl pointer-events-auto">
+            <h3 id="panel-info-title" class="font-bold text-white text-sm mb-1 flex items-center gap-2">
+                <i class="fa-solid fa-microscope text-blue-400"></i>
+                Understanding the 4p Orbital
+            </h3>
+            <p id="panel-info-desc" class="text-xs text-slate-300 leading-relaxed">
+                The atomic ground state configuration of gallium is [Ar] 3d¹⁰ 4s² 4p¹. The final valence electron resides in a dumbbell-shaped p-orbital. Highly directional along its major coordinate axis, this orbital acts like an atomic anchor seeking a partner.
+            </p>
+        </div>
+    </main>
+
+    <script>
+        // Global simulation variables
+        let container, scene, camera, renderer, controls;
+        let currentStage = 1;
+        
+        // Stage 1 Meshes
+        let nucleusGroup, orbital4p, shell4s;
+        
+        // Stage 2 Meshes
+        let latticeGroup, unitCellBox, orbitalVisuals = [], secondaryBonds = [], atomMeshes = [];
+        let dimersIsolated = false;
+        
+        // Stage 3 Meshes
+        let crystalGroup, activeCells = new Map(), meltParticles;
+        let isAutoGrowing = false;
+        let autoGrowInterval = null;
+
+        // Stage 4 Physics Simulation Nodes
+        let electricFieldGroup;
+        let phononAmplitudeVal = 0.05, phononFrequencyVal = 1.0, activePhononAxis = 'a';
+        let currentMedium = 'neutral', activeThermodynamicState = 1.00; // Tracked as fine decimal
+
+        // Spectroscopy & Transition Particle System Group
+        let spectrumGroup, transitionParticleGroup, debugBVHGroup;
+
+        // Space Group conventional parameters (Alpha-Gallium Cmca)
+        const LAT_A = 4.5192;
+        const LAT_B = 7.6570;
+        const LAT_C = 4.5257;
+
+        const Wyck_Y = 0.1549;
+        const Wyck_Z = 0.0817;
+
+        // Colors
+        const COLORS = {
+            nucleusProton: 0xec4899, // Pink/Magenta
+            nucleusNeutron: 0x3b82f6, // Blue
+            shell4s: 0x3b82f6, // Transparent blue
+            orbital4p: 0x8b5cf6, // Violet/Purple
+            atomCore: 0xe2e8f0, // Shiny Slate/Silver
+            covalentBond: 0xf59e0b, // Golden covalent dimer
+            metallicBond: 0x475569, // Gray secondary bonds
+            cellWireframe: 0x334155, // Dark gray border
+            meltParticle: 0x60a5fa, // Streaming blue particles
+            oxideSkin: 0xf43f5e // Protective oxide layer tint
+        };
+
+        // Window load listener
+        window.onload = function() {
+            init();
+            animate();
+        };
+
+        function init() {
+            container = document.getElementById('canvas-container');
+            const width = container.clientWidth || window.innerWidth;
+            const height = container.clientHeight || (window.innerHeight / 2);
+
+            // Scene setup
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x0b0f19, 0.012);
+
+            // Camera setup
+            camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+            camera.position.set(0, 4, 14);
+
+            // WebGL Renderer with fallback catcher
+            try {
+                renderer = new THREE.WebGLRenderer({ antialias: true });
+                renderer.setSize(width, height);
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                renderer.setClearColor(0x0b0f19, 1);
+                container.appendChild(renderer.domElement);
+            } catch (error) {
+                console.error("WebGL failed:", error);
+                showWebGLFallback();
+                return;
+            }
+
+            // Controls setup
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.maxDistance = 120;
+            controls.minDistance = 3;
+
+            // Lights - ENHANCED ENVIRONMENT AMBIENT SYSTEM
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.25);
+            scene.add(ambientLight);
+
+            // Hemisphere light dome representing ambient sky and ground tones
+            const hemiLight = new THREE.HemisphereLight(0xdbeafe, 0x111827, 0.85);
+            hemiLight.position.set(0, 50, 0);
+            scene.add(hemiLight);
+
+            // High intensity key direct lights to produce the shiny, silvery metallic reflections
+            const dirLight1 = new THREE.DirectionalLight(0xdbeafe, 0.95);
+            dirLight1.position.set(20, 40, 20);
+            scene.add(dirLight1);
+
+            const dirLight2 = new THREE.DirectionalLight(0x7c3aed, 0.45); // Deep purple/violet filler shadow light
+            dirLight2.position.set(-20, -20, -20);
+            scene.add(dirLight2);
+
+            // Initialize globally required groups
+            transitionParticleGroup = new THREE.Group();
+            spectrumGroup = new THREE.Group();
+            debugBVHGroup = new THREE.Group();
+            electricFieldGroup = new THREE.Group();
+
+            scene.add(transitionParticleGroup);
+            scene.add(spectrumGroup);
+            scene.add(debugBVHGroup);
+            scene.add(electricFieldGroup);
+
+            // Build all stage structures
+            buildStage1();
+            buildStage2();
+            buildStage3();
+
+            // Setup default interactive stage
+            switchStage(1);
+
+            // Responsive Handlers
+            window.addEventListener('resize', onWindowResize);
+            setupUIEventListeners();
+        }
+
+        // Catch canvas crash scenarios beautifully
+        function showWebGLFallback() {
+            container.innerHTML = `
+                <div class="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-slate-950/80 border border-slate-800 rounded-xl m-4">
+                    <i class="fa-solid fa-triangle-exclamation text-amber-500 text-4xl mb-3 animate-pulse"></i>
+                    <h3 class="font-bold text-white mb-1">WebGL Sandbox Restrained</h3>
+                    <p class="text-xs text-slate-400 max-w-sm">
+                        Graphics context creation has been constrained by your environment's sandbox configurations. Check hardware acceleration, browser permissions, or open in a direct tab.
+                    </p>
+                </div>`;
+        }
+
+        function onWindowResize() {
+            if (!renderer) return;
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height);
+        }
+
+        // Setup sliders and other DOM controls listeners
+        function setupUIEventListeners() {
+            // Slider 4p size
+            document.getElementById('slider-orbital-size').addEventListener('input', function(e) {
+                const val = parseFloat(e.target.value);
+                document.getElementById('val-orbital-size').innerText = val.toFixed(1) + 'x';
+                if (orbital4p) {
+                    orbital4p.scale.set(val, val, val);
+                }
+            });
+
+            // Slider 4s transparency
+            document.getElementById('slider-s-opacity').addEventListener('input', function(e) {
+                const val = parseFloat(e.target.value);
+                document.getElementById('val-s-opacity').innerText = val.toFixed(2);
+                if (shell4s && shell4s.material) {
+                    shell4s.material.opacity = val;
+                }
+            });
+
+            // Toggle orbitals visibility in Stage 2
+            document.getElementById('check-show-orbitals').addEventListener('change', function(e) {
+                const state = e.target.checked;
+                orbitalVisuals.forEach(mesh => {
+                    mesh.visible = state;
+                });
+            });
+
+            // Toggle metallic bonds in Stage 2
+            document.getElementById('check-show-metallic').addEventListener('change', function(e) {
+                const state = e.target.checked;
+                secondaryBonds.forEach(mesh => {
+                    mesh.visible = state;
+                });
+            });
+        }
+
+        // Helper cylinder generator to connect atoms with geometric rods
+        function createCylinderBond(vStart, vEnd, radius, color) {
+            const distance = vStart.distanceTo(vEnd);
+            const position = new THREE.Vector3().addVectors(vStart, vEnd).multiplyScalar(0.5);
+            
+            const cylinderGeo = new THREE.CylinderGeometry(radius, radius, distance, 12);
+            const material = new THREE.MeshPhongMaterial({
+                color: color,
+                emissive: color,
+                emissiveIntensity: 0.3,
+                transparent: true,
+                opacity: 0.85
+            });
+            
+            const mesh = new THREE.Mesh(cylinderGeo, material);
+            mesh.position.copy(position);
+            
+            const direction = new THREE.Vector3().subVectors(vEnd, vStart).normalize();
+            const up = new THREE.Vector3(0, 1, 0); 
+            const quaternion = new THREE.Quaternion().setFromUnitVectors(up, direction);
+            mesh.setRotationFromQuaternion(quaternion);
+            
+            // Assure created Stage 2 conventional cell bonds have localized rest coordinates defined
+            mesh.userData = { localEquilibrium: mesh.position.clone() };
+
+            return mesh;
+        }
+
+        // Helper cylinder generator to dynamically draw and add bonds to a specified group
+        function drawCylinderBond(group, vStart, vEnd, material, radius) {
+            const distance = vStart.distanceTo(vEnd);
+            const position = new THREE.Vector3().addVectors(vStart, vEnd).multiplyScalar(0.5);
+            
+            const cylinderGeo = new THREE.CylinderGeometry(radius, radius, distance, 12);
+            const mesh = new THREE.Mesh(cylinderGeo, material);
+            mesh.position.copy(position);
+            
+            const direction = new THREE.Vector3().subVectors(vEnd, vStart).normalize();
+            const up = new THREE.Vector3(0, 1, 0); 
+            const quaternion = new THREE.Quaternion().setFromUnitVectors(up, direction);
+            mesh.setRotationFromQuaternion(quaternion);
+            
+            // Assign coordinate data to keep animation tracking healthy
+            mesh.userData = { localEquilibrium: mesh.position.clone() };
+            
+            group.add(mesh);
+        }
+
+        // Helper dumbbell generator representing 4p orbital shape
+        function createLocalOrbitalDumbbell() {
+            const group = new THREE.Group();
+            const lobeGeo = new THREE.SphereGeometry(0.2, 16, 16);
+            lobeGeo.scale(1, 1, 1.8);
+            
+            const mat = new THREE.MeshBasicMaterial({
+                color: COLORS.orbital4p,
+                transparent: true,
+                opacity: 0.45,
+                wireframe: true
+            });
+            
+            const l1 = new THREE.Mesh(lobeGeo, mat);
+            l1.position.set(0, 0, 0.28);
+            
+            const l2 = new THREE.Mesh(lobeGeo, mat);
+            l2.position.set(0, 0, -0.28);
+            
+            group.add(l1);
+            group.add(l2);
+            return group;
+        }
+
+        function alignMeshToVector(mesh, direction) {
+            const up = new THREE.Vector3(0, 0, 1);
+            const quaternion = new THREE.Quaternion().setFromUnitVectors(up, direction);
+            mesh.setRotationFromQuaternion(quaternion);
+        }
+
+        // Helper dashed bond creator to handle weak inter-dimer metallic bonds
+        function createDashedBond(vStart, vEnd, color) {
+            const geom = new THREE.BufferGeometry().setFromPoints([vStart, vEnd]);
+            const mat = new THREE.LineDashedMaterial({
+                color: color,
+                dashSize: 0.15,
+                gapSize: 0.1,
+                transparent: true,
+                opacity: 0.5
+            });
+            const line = new THREE.Line(geom, mat);
+            line.computeLineDistances();
+            return line;
+        }
+
+        // Controls the surface transparency of the crystal in Stage 2 & 3
+        function updateCrystalOpacity(val) {
+            document.getElementById('val-crystal-opacity').innerText = parseFloat(val).toFixed(2);
+            scene.traverse(node => {
+                if (node.isMesh && node.userData.isSurface) {
+                    node.material.transparent = true;
+                    node.material.opacity = parseFloat(val);
+                }
+            });
+        }
+
+        // --- PHASE TRANSITIONS SIMULATOR (MELTING & BOILING) ---
+        function updateThermodynamicState(val) {
+            activeThermodynamicState = parseFloat(val); // Smooth Float Tracking
+            const labelTemp = document.getElementById('val-thermo-temp');
+            const labelDesc = document.getElementById('lbl-thermo-desc');
+            const infoDesc = document.getElementById('panel-info-desc');
+
+            let tempText = activeThermodynamicState.toFixed(2);
+            let descText = "";
+
+            // Reset default vibration
+            phononAmplitudeVal = 0.01;
+
+            if (activeThermodynamicState < 1.0) {
+                // Absolute Zero (0.0) -> Solid (1.0)
+                const f = activeThermodynamicState;
+                tempText += " (0 K to 20 °C Solid)";
+                descText = `Gradually warming up from absolute zero. Phonon lattice vibration increases smoothly from zero to standard solid fluctuations (harmonic amplitude: ${(f * 0.03).toFixed(3)}x).`;
+                phononAmplitudeVal = f * 0.03;
+            } 
+            else if (activeThermodynamicState >= 1.0 && activeThermodynamicState < 2.0) {
+                // Solid (1.0) -> Liquid Melt (2.0)
+                const f = activeThermodynamicState - 1.0;
+                tempText += " (Melting: " + (20 + f * 15).toFixed(1) + " °C)";
+                descText = `Approaching melting point. Weak inter-dimer metallic bonds are dissolving gradually (metallic binding strength: ${((1.0 - f) * 100).toFixed(0)}%). Dimer pairs pair-correlations persist, transitioning into a Brownian flow state. Volume undergoes anomalous contraction of ${(f * 3.1).toFixed(1)}%.`;
+                phononAmplitudeVal = 0.03 + f * 0.17; // Elevates oscillation amplitude
+            } 
+            else if (activeThermodynamicState >= 2.0) {
+                // Liquid Melt (2.0) -> Vaporized Gas (3.0)
+                const f = activeThermodynamicState - 2.0;
+                tempText += " (Vaporization State)";
+                descText = `Boiling off! Extremely strong covalent bonds within the dimers are breaking (dimer dissociation: ${(f * 100).toFixed(0)}%). Ga atoms break apart completely, flying into a chaotic, expanding high-energy gaseous state.`;
+                phononAmplitudeVal = 0.20 + f * 0.65;
+            }
+
+            if (labelTemp) labelTemp.innerText = tempText;
+            if (labelDesc) labelDesc.innerText = descText;
+            if (infoDesc && currentStage === 4) infoDesc.innerHTML = descText;
+
+            const sliderCrystalOpacity = parseFloat(document.getElementById('slider-crystal-opacity')?.value || 0.40);
+
+            // Interpolating physical surface envelopes and secondary metallics
+            crystalGroup.children.forEach(cellGroup => {
+                cellGroup.children.forEach(child => {
+                    if (child.isMesh) {
+                        if (child.userData.isSurface) {
+                            child.visible = true;
+                            if (activeThermodynamicState < 1.0) {
+                                child.material.opacity = sliderCrystalOpacity;
+                            } 
+                            else if (activeThermodynamicState >= 1.0 && activeThermodynamicState < 2.0) {
+                                // Smoothly fade out surface envelope
+                                const f = activeThermodynamicState - 1.0;
+                                child.material.opacity = (1.0 - f) * sliderCrystalOpacity;
+                            } 
+                            else {
+                                child.material.opacity = 0.0;
+                                child.visible = false;
+                            }
+                        }
+                    } else if (child.isLine) {
+                        // Fade secondary metallic bonds gradually
+                        if (activeThermodynamicState >= 1.0 && activeThermodynamicState < 2.0) {
+                            const f = activeThermodynamicState - 1.0;
+                            child.material.opacity = (1.0 - f) * 0.5;
+                        } else if (activeThermodynamicState >= 2.0) {
+                            child.material.opacity = 0.0;
+                        } else {
+                            child.material.opacity = 0.5;
+                        }
+                    }
+                });
+            });
+        }
+
+        // --- DETAILED DIRECTIONAL PHONON SIMULATOR ---
+        function changePhononDirection(val) {
+            activePhononAxis = val;
+        }
+
+        function updatePhononParams() {
+            phononAmplitudeVal = parseFloat(document.getElementById('slider-phonon-amp').value);
+            phononFrequencyVal = parseFloat(document.getElementById('slider-phonon-freq').value);
+            
+            document.getElementById('val-phonon-amp').innerText = phononAmplitudeVal.toFixed(2) + 'x';
+            document.getElementById('val-phonon-freq').innerText = phononFrequencyVal.toFixed(1) + 'x';
+        }
+
+        // --- ELECTROSTATIC FIELD & DRIFT VELOCITY ---
+        function toggleElectricalField(state) {
+            electricFieldGroup.visible = state;
+            if (state) {
+                // Initialize drifting valence electron particles (4s² 4p¹ electron stream)
+                const driftCount = 60;
+                const geom = new THREE.BufferGeometry();
+                const positions = new Float32Array(driftCount * 3);
+                const velocities = [];
+
+                for (let i = 0; i < driftCount; i++) {
+                    positions[i * 3] = (Math.random() * 2 - 1) * 8.0;
+                    positions[i * 3 + 1] = (Math.random() * 2 - 1) * 3.0;
+                    positions[i * 3 + 2] = (Math.random() * 2 - 1) * 8.0;
+                    
+                    // drift along fast a/c plane axes
+                    velocities.push(0.05 + Math.random() * 0.15); 
+                }
+
+                geom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                const mat = new THREE.PointsMaterial({
+                    size: 0.14,
+                    color: 0x60a5fa,
+                    transparent: true,
+                    opacity: 0.95,
+                    blending: THREE.AdditiveBlending
+                });
+
+                const electronsMesh = new THREE.Points(geom, mat);
+                electronsMesh.userData.velocities = velocities;
+                electricFieldGroup.add(electronsMesh);
+            } else {
+                while(electricFieldGroup.children.length > 0) {
+                    electricFieldGroup.remove(electricFieldGroup.children[0]);
+                }
+            }
+        }
+
+        // --- CHEMICAL MEDIUM CHANGES (Acid/Neutral/Alkaline) ---
+        function changeMedium(mediumType) {
+            currentMedium = mediumType;
+
+            const btnAcid = document.getElementById('btn-med-acid');
+            const btnNeutral = document.getElementById('btn-med-neutral');
+            const btnAlkali = document.getElementById('btn-med-alkali');
+
+            [btnAcid, btnNeutral, btnAlkali].forEach(btn => {
+                if (btn) btn.className = "py-1.5 text-[10px] text-center rounded font-semibold transition bg-slate-900 border border-slate-800 text-slate-400";
+            });
+
+            // Adjust oxide skin reflection layer color based on chemical reaction
+            let targetColor = 0x93c5fd; // Neutral silvery blue
+            let surfaceDescription = "";
+
+            if (mediumType === 'acid') {
+                if (btnAcid) btnAcid.className = "py-1.5 text-[10px] text-center rounded font-semibold transition bg-rose-600 text-white shadow";
+                targetColor = 0x38bdf8; // Oxide dissolves: clean, highly reflective metallic luster
+                surfaceDescription = "Oxide film ($Ga_2O_3$) dissolves rapidly in acidic environment, revealing a completely clean, low surface-tension liquid state.";
+            } else if (mediumType === 'neutral') {
+                if (btnNeutral) btnNeutral.className = "py-1.5 text-[10px] text-center rounded font-semibold transition bg-blue-600 text-white shadow";
+                targetColor = 0x93c5fd; // Standard silvery oxide tint
+                surfaceDescription = "In standard air/water, Gallium oxidizes instantly to form a protective sub-nanometer skin of $Ga_2O_3$, causing famous electrostatic wetting.";
+            } else if (mediumType === 'alkali') {
+                if (btnAlkali) btnAlkali.className = "py-1.5 text-[10px] text-center rounded font-semibold transition bg-emerald-600 text-white shadow";
+                targetColor = 0x34d399; // Basic medium: alkaline dissolution
+                surfaceDescription = "Alkaline solution dissolves the oxide skin into soluble gallate ($Ga(OH)_4^-$). Dropping onto cathode induces famous 'Gallium Beating Heart' oscillation.";
+            }
+
+            const scaleExp = document.getElementById('scale-explanation');
+            if (scaleExp) {
+                scaleExp.innerHTML = surfaceDescription;
+            }
+            const infoDesc = document.getElementById('panel-info-desc');
+            if (infoDesc && currentStage === 4) {
+                infoDesc.innerHTML = surfaceDescription;
+            }
+
+            // Retint the crystal surface faces globally
+            scene.traverse(node => {
+                if (node.isMesh && node.userData.isSurface) {
+                    node.material.color.setHex(targetColor);
+                }
+            });
+        }
+
+        // --- STAGE 1: Atomic Wavefunction ---
+        function buildStage1() {
+            nucleusGroup = new THREE.Group();
+            
+            // Core proton and neutron packaging
+            const totalNucleons = 31 + 39; // Gallium-69 protons and neutrons
+            const nucleonGeo = new THREE.SphereGeometry(0.12, 12, 12);
+            
+            for(let i=0; i<totalNucleons; i++) {
+                const isProton = Math.random() > 0.55;
+                const color = isProton ? COLORS.nucleusProton : COLORS.nucleusNeutron;
+                const mat = new THREE.MeshPhongMaterial({
+                    color: color, 
+                    shininess: 90,
+                    flatShading: true
+                });
+                const nucleon = new THREE.Mesh(nucleonGeo, mat);
+                
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.acos((Math.random() * 2) - 1);
+                const r = Math.random() * 0.45;
+                
+                nucleon.position.set(
+                    r * Math.sin(phi) * Math.cos(theta),
+                    r * Math.sin(phi) * Math.sin(theta),
+                    r * Math.cos(phi)
+                );
+                nucleusGroup.add(nucleon);
+            }
+            scene.add(nucleusGroup);
+
+            // 4s Shell (Outer sphere)
+            const sGeo = new THREE.SphereGeometry(2.4, 32, 32);
+            const sMat = new THREE.MeshPhongMaterial({
+                color: COLORS.shell4s,
+                transparent: true,
+                opacity: 0.65,
+                wireframe: true,
+                depthWrite: false
+            });
+            shell4s = new THREE.Mesh(sGeo, sMat);
+            scene.add(shell4s);
+
+            // Wavefunction cloud groups
+            orbital4p = new THREE.Group();
+            buildQuantumCloudParticles();
+            scene.add(orbital4p);
+        }
+
+        // Generates nested quantum cloud layers according to the select type
+        function buildQuantumCloudParticles() {
+            while(orbital4p.children.length > 0) {
+                orbital4p.remove(orbital4p.children[0]);
+            }
+
+            const selectVal = document.getElementById('select-orbital-type').value;
+
+            if (selectVal === 's' || selectVal === 'all') {
+                const sPoints = generateShellPoints(15000, 's', 0xec4899, 1.8); // Pink inner s core
+                orbital4p.add(sPoints);
+            }
+            if (selectVal === 'd' || selectVal === 'all') {
+                const dPoints = generateShellPoints(35000, 'd', 0x06b6d4, 3.6); // Cyan intermediate d clover
+                orbital4p.add(dPoints);
+            }
+            if (selectVal === 'p' || selectVal === 'all') {
+                const pPoints = generateShellPoints(25000, 'p', 0xf59e0b, 5.0); // Gold outer p dumbbell
+                orbital4p.add(pPoints);
+            }
+        }
+
+        // Point cloud generator for wavefunctions
+        function generateShellPoints(count, type, color, maxRadius) {
+            const positions = [];
+            const colors = [];
+            const colorObj = new THREE.Color(color);
+
+            for (let i = 0; i < count; i++) {
+                const x = (Math.random() * 2 - 1) * maxRadius;
+                const y = (Math.random() * 2 - 1) * maxRadius;
+                const z = (Math.random() * 2 - 1) * maxRadius;
+
+                const r = Math.sqrt(x*x + y*y + z*z);
+                if (r === 0 || r > maxRadius) continue;
+
+                const cosTheta = z / r;
+                const phi = Math.atan2(y, x);
+
+                let probability = 0.0;
+                let radialWave = Math.exp(-r * 1.1) * (r * r);
+
+                if (type === 's') {
+                    probability = 1.0;
+                } else if (type === 'p') {
+                    probability = cosTheta * cosTheta; // Dumbbell shape
+                } else if (type === 'd') {
+                    const sinTheta = Math.sqrt(1 - cosTheta * cosTheta);
+                    probability = Math.pow(sinTheta, 4) * Math.pow(Math.sin(2 * phi), 2); // Clover shape
+                }
+
+                if (Math.random() < probability * radialWave * 2.5) {
+                    positions.push(x, y, z);
+                    const shade = colorObj.clone().multiplyScalar(0.7 + Math.random() * 0.35);
+                    colors.push(shade.r, shade.g, shade.b);
+                }
+            }
+
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(positions), 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(new Float32Array(colors), 3));
+
+            const material = new THREE.PointsMaterial({
+                size: 0.042,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.7,
+                blending: THREE.AdditiveBlending
+            });
+
+            return new THREE.Points(geometry, material);
+        }
+
+        function updateOrbitalType(val) {
+            const labelMap = {
+                'all': 'Nested Shells (s+p+d)',
+                's': 's-Subshells (l=0, Core)',
+                'p': 'p-Subshells (l=1, Valence)',
+                'd': 'd-Subshells (l=2, Intermediary)'
+            };
+            document.getElementById('txt-selected-wave').innerText = labelMap[val] || 'Nested Shells';
+            buildQuantumCloudParticles();
+        }
+
+        // --- STAGE 2: Orthorhombic Conventional Cell ---
+        function buildStage2() {
+            latticeGroup = new THREE.Group();
+            atomMeshes = [];
+
+            const scale = 1.0;
+            const a = LAT_A * scale;
+            const b = LAT_B * scale;
+            const c = LAT_C * scale;
+
+            // Draw unit cell wireframe box
+            const boxGeo = new THREE.BoxGeometry(a, b, c);
+            const edges = new THREE.EdgesGeometry(boxGeo);
+            unitCellBox = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: COLORS.cellWireframe, linewidth: 2 }));
+            latticeGroup.add(unitCellBox);
+
+            // Draw solid metallic, adjustable-opacity crystal surface faces (solves the missing surface issue)
+            const surfGeo = new THREE.BoxGeometry(a, b, c);
+            const surfMat = new THREE.MeshStandardMaterial({
+                color: 0x93c5fd, // Silvery blue base hue matching pure Gallium
+                roughness: 0.35,
+                metalness: 0.85,
+                transparent: true,
+                opacity: 0.40, // default matching slider
+                side: THREE.DoubleSide
+            });
+            const cellSurface = new THREE.Mesh(surfGeo, surfMat);
+            cellSurface.userData.isSurface = true;
+            latticeGroup.add(cellSurface);
+
+            const getRealCoords = (xf, yf, zf) => {
+                return new THREE.Vector3(
+                    (xf - 0.5) * a,
+                    (yf - 0.5) * b,
+                    (zf - 0.5) * c
+                );
+            };
+
+            const fractionalCoords = [
+                { x: 0,   y: Wyck_Y,       z: Wyck_Z },         // Atom 1
+                { x: 0,   y: 1 - Wyck_Y,   z: 1 - Wyck_Z },     // Atom 2
+                { x: 0,   y: 0.5 + Wyck_Y, z: 0.5 - Wyck_Z },   // Atom 3
+                { x: 0,   y: 0.5 - Wyck_Y, z: 0.5 + Wyck_Z },   // Atom 4
+                { x: 0.5, y: 0.5 + Wyck_Y, z: 0.5 + Wyck_Z },   // Atom 5
+                { x: 0.5, y: 0.5 - Wyck_Y, z: 0.5 - Wyck_Z },   // Atom 6
+                { x: 0.5, y: Wyck_Y,       z: 1 - Wyck_Z },     // Atom 7
+                { x: 0.5, y: 1 - Wyck_Y,   z: Wyck_Z }          // Atom 8
+            ];
+
+            const atomPositions = fractionalCoords.map(f => getRealCoords(f.x, f.y, f.z));
+
+            // Core atomic spheres with high reflectivity luster
+            const atomGeo = new THREE.SphereGeometry(0.38, 32, 32);
+            const atomMat = new THREE.MeshStandardMaterial({
+                color: COLORS.atomCore,
+                roughness: 0.2,
+                metalness: 0.95
+            });
+
+            atomPositions.forEach((pos) => {
+                const atom = new THREE.Mesh(atomGeo, atomMat);
+                atom.position.copy(pos);
+                // FIXED: Assure local conventional cell atoms have a default empty userData object instead of undefined, preventing runtime property query exceptions
+                atom.userData = { localEquilibrium: atom.position.clone() };
+                latticeGroup.add(atom);
+                atomMeshes.push(atom);
+
+                // Local dumbbell representing the directional 4p orbital
+                const localOrbital = createLocalOrbitalDumbbell();
+                localOrbital.position.copy(pos);
+                latticeGroup.add(localOrbital);
+                orbitalVisuals.push(localOrbital);
+            });
+
+            // Conventional covalent dimer pairings
+            const dimerPairs = [
+                { a: 0, b: 3 }, // Dimer 1
+                { a: 1, b: 2 }, // Dimer 2
+                { a: 4, b: 7 }, // Dimer 3
+                { a: 5, b: 6 }  // Dimer 4
+            ];
+
+            dimerPairs.forEach(pair => {
+                const posA = atomPositions[pair.a];
+                const posB = atomPositions[pair.b];
+
+                const bond = createCylinderBond(posA, posB, 0.08, COLORS.covalentBond);
+                latticeGroup.add(bond);
+
+                // Align lobe orientations to overlap head-on between dimer partners
+                const direction = new THREE.Vector3().subVectors(posB, posA).normalize();
+                alignMeshToVector(orbitalVisuals[pair.a], direction);
+                alignMeshToVector(orbitalVisuals[pair.b], direction);
+            });
+
+            // Secondary metallic bonds linking nearby dimers (2.70 - 2.79 Å)
+            for(let i=0; i<atomPositions.length; i++) {
+                for(let j=i+1; j<atomPositions.length; j++) {
+                    const isPartner = dimerPairs.some(p => (p.a === i && p.b === j) || (p.a === j && p.b === i));
+                    if(!isPartner) {
+                        const dist = atomPositions[i].distanceTo(atomPositions[j]);
+                        if (dist < 4.8) { 
+                            const line = createDashedBond(atomPositions[i], atomPositions[j], COLORS.metallicBond);
+                            latticeGroup.add(line);
+                            secondaryBonds.push(line);
+                        }
+                    }
+                }
+            }
+
+            scene.add(latticeGroup);
+        }
+
+        // --- STAGE 3: Anisotropic Platelet Growth ---
+        function buildStage3() {
+            crystalGroup = new THREE.Group();
+            scene.add(crystalGroup);
+
+            // Spawn background liquid melt particle system
+            const pCount = 800;
+            const pGeom = new THREE.BufferGeometry();
+            const pCoords = new Float32Array(pCount * 3);
+
+            for (let i = 0; i < pCount; i++) {
+                // Sphere distribution outside growth radius
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.acos((Math.random() * 2) - 1);
+                const r = 18.0 + Math.random() * 32.0;
+
+                pCoords[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+                pCoords[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta);
+                pCoords[i * 3 + 2] = r * Math.cos(phi);
+            }
+
+            pGeom.setAttribute('position', new THREE.BufferAttribute(pCoords, 3));
+            const pMat = new THREE.PointsMaterial({
+                size: 0.16,
+                color: COLORS.meltParticle,
+                transparent: true,
+                opacity: 0.5,
+                blending: THREE.AdditiveBlending
+            });
+
+            meltParticles = new THREE.Points(pGeom, pMat);
+            scene.add(meltParticles);
+
+            resetGrowth();
+        }
+
+        // Resets seed crystal back to a single conventional cell
+        function resetGrowth() {
+            while (crystalGroup.children.length > 0) {
+                crystalGroup.remove(crystalGroup.children[0]);
+            }
+            activeCells.clear();
+
+            // Place initial seed cell at origin (0, 0, 0)
+            spawnCellAtGrid(0, 0, 0);
+            updateGrowthStats();
+        }
+
+        // Generates cell block coordinates with proper Wyckoff placements
+        function spawnCellAtGrid(dx, dy, dz) {
+            const key = `${dx},${dy},${dz}`;
+            if (activeCells.has(key)) return;
+
+            const a = LAT_A;
+            const b = LAT_B;
+            const c = LAT_C;
+
+            const subGroup = new THREE.Group();
+            subGroup.position.set(dx * a, dy * b, dz * c);
+
+            // Record initial equilibrium offset positions for physical molecular dynamics phase simulator
+            subGroup.userData = { 
+                dx: dx, 
+                dy: dy, 
+                dz: dz,
+                initPos: new THREE.Vector3(dx * a, dy * b, dz * c),
+                driftPos: new THREE.Vector3(dx * a, dy * b, dz * c), // Stable LERPed Brownian anchor
+                phaseVel: new THREE.Vector3(
+                    (Math.random() - 0.5) * 0.12,
+                    (Math.random() - 0.5) * 0.12,
+                    (Math.random() - 0.5) * 0.12
+                )
+            };
+
+            const wyckoff8f = [
+                { x: 0,   y: Wyck_Y,       z: Wyck_Z },
+                { x: 0,   y: 1 - Wyck_Y,   z: 1 - Wyck_Z },
+                { x: 0,   y: 0.5 + Wyck_Y, z: 0.5 - Wyck_Z },
+                { x: 0,   y: 0.5 - Wyck_Y, z: 0.5 + Wyck_Z },
+                { x: 0.5, y: 0.5 + Wyck_Y, z: 0.5 + Wyck_Z },
+                { x: 0.5, y: 0.5 - Wyck_Y, z: 0.5 - Wyck_Z },
+                { x: 0.5, y: Wyck_Y,       z: 1 - Wyck_Z },
+                { x: 0.5, y: 1 - Wyck_Y,   z: Wyck_Z }
+            ];
+
+            const atomGeo = new THREE.SphereGeometry(0.35, 12, 12);
+            const atomMat = new THREE.MeshStandardMaterial({
+                color: COLORS.atomCore,
+                roughness: 0.2,
+                metalness: 0.95
+            });
+            const dimerBondMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b });
+
+            // Place Wyckoff coordinates
+            const meshes = wyckoff8f.map(coord => {
+                const m = new THREE.Mesh(atomGeo, atomMat);
+                m.position.set((coord.x - 0.25) * a, (coord.y - 0.5) * b, (coord.z - 0.5) * c);
+                m.userData = { 
+                    localEquilibrium: m.position.clone(),
+                    gasDispersePos: m.position.clone().add(new THREE.Vector3(
+                        (Math.random() - 0.5) * 4.5,
+                        (Math.random() - 0.5) * 4.5,
+                        (Math.random() - 0.5) * 4.5
+                    ))
+                };
+                subGroup.add(m);
+                atomMeshes.push(m);
+                return m;
+            });
+
+            // Connect covalent pairs inside cell
+            const covalentPairs = [
+                { xfrom: 0, xto: 3 },
+                { xfrom: 1, xto: 2 },
+                { xfrom: 4, xto: 7 },
+                { xfrom: 5, xto: 6 }
+            ];
+            covalentPairs.forEach(pair => {
+                drawCylinderBond(subGroup, meshes[pair.xfrom].position, meshes[pair.xto].position, dimerBondMat, 0.08);
+            });
+
+            // Add local wireframe box bounds
+            const boxGeo = new THREE.BoxGeometry(a, b, c);
+            const wire = new THREE.BoxHelper(new THREE.Mesh(boxGeo), COLORS.cellWireframe);
+            subGroup.add(wire);
+
+            // Draw solid metallic, adjustable-opacity crystal surface faces (solves the missing surface issue)
+            const surfGeo = new THREE.BoxGeometry(a, b, c);
+            const surfMat = new THREE.MeshStandardMaterial({
+                color: 0x93c5fd, // Silvery blue base hue matching pure Gallium
+                roughness: 0.35,
+                metalness: 0.85,
+                transparent: true,
+                opacity: parseFloat(document.getElementById('slider-crystal-opacity')?.value || 0.40),
+                side: THREE.DoubleSide
+            });
+            const cellSurface = new THREE.Mesh(surfGeo, surfMat);
+            cellSurface.userData.isSurface = true;
+            subGroup.add(cellSurface);
+
+            // Scaling growth spawn animation
+            subGroup.scale.set(0.01, 0.01, 0.01);
+            crystalGroup.add(subGroup);
+
+            // Animate scaling up
+            let scaleVal = 0.01;
+            const scaleStep = () => {
+                if (scaleVal < 1.0) {
+                    scaleVal += 0.1;
+                    subGroup.scale.set(scaleVal, scaleVal, scaleVal);
+                    requestAnimationFrame(scaleStep);
+                }
+            };
+            scaleStep();
+
+            // Map cell to state registry
+            activeCells.set(key, { dx, dy, dz, mesh: subGroup });
+        }
+
+        // Anisotropic step-by-step crystal platelet expansion along the fast a-c plane
+        function growStep() {
+            // Find neighbors candidates bordering built nodes
+            const candidates = [];
+            const offsets = [
+                { dx: 1, dy: 0, dz: 0, weight: 0.85 },  // Fast a-axis [100] primary plate expansion
+                { dx: -1, dy: 0, dz: 0, weight: 0.85 },
+                { dx: 0, dy: 0, dz: 1, weight: 0.40 },  // Moderate c-axis [001] secondary width
+                { dx: 0, dy: 0, dz: -1, weight: 0.40 },
+                { dx: 0, dy: 1, dz: 0, weight: 0.10 },  // Very slow b-axis [010] stacking thickness
+                { dx: 0, dy: -1, dz: 0, weight: 0.10 }
+            ];
+
+            activeCells.forEach(cell => {
+                offsets.forEach(offset => {
+                    const nx = cell.dx + offset.dx;
+                    const ny = cell.dy + offset.dy;
+                    const nz = cell.dz + offset.dz;
+                    const key = `${nx},${ny},${nz}`;
+
+                    // Limit grid boundaries to keep simulation within 5x5x5 box
+                    if (Math.abs(nx) <= 3 && Math.abs(ny) <= 3 && Math.abs(nz) <= 3) {
+                        if (!activeCells.has(key)) {
+                            // Collect with weight reference
+                            candidates.push({ dx: nx, dy: ny, dz: nz, weight: offset.weight });
+                        }
+                    }
+                });
+            });
+
+            if (candidates.length === 0) return;
+
+            // Sort candidates by anisotropic probability weights
+            candidates.sort((a, b) => b.weight - a.weight);
+
+            // Select 1 to 3 cells matching highest weighted metrics
+            const growthBatchCount = Math.min(candidates.length, 2);
+            for (let i = 0; i < growthBatchCount; i++) {
+                const targetCell = candidates[i];
+                spawnCellAtGrid(targetCell.dx, targetCell.dy, targetCell.dz);
+            }
+
+            updateGrowthStats();
+        }
+
+        function toggleAutoGrow() {
+            isAutoGrowing = !isAutoGrowing;
+            const btn = document.getElementById('btn-grow-auto');
+            const icon = document.getElementById('icon-auto-grow');
+            const txt = document.getElementById('txt-auto-grow');
+
+            if (isAutoGrowing) {
+                icon.className = "fa-solid fa-pause";
+                txt.innerText = "Pause Grow";
+                btn.className = "py-2.5 px-3 rounded-lg bg-yellow-600 hover:bg-yellow-500 text-white font-semibold text-xs flex items-center justify-center space-x-2 shadow transition";
+                autoGrowInterval = setInterval(growStep, 400);
+            } else {
+                icon.className = "fa-solid fa-play";
+                txt.innerText = "Auto Grow";
+                btn.className = "py-2.5 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs flex items-center justify-center space-x-2 shadow border border-slate-700 transition";
+                clearInterval(autoGrowInterval);
+            }
+        }
+
+        function updateGrowthStats() {
+            const cellCount = activeCells.size;
+            const atomCount = cellCount * 8;
+            document.getElementById('stat-atoms').innerText = atomCount;
+            document.getElementById('stat-cells').innerText = cellCount;
+
+            // Calculate current bounding box dimensions to determine plate aspect ratio
+            let minX = 0, maxX = 0, minY = 0, maxY = 0;
+            activeCells.forEach(cell => {
+                minX = Math.min(minX, cell.dx);
+                maxX = Math.max(maxX, cell.dx);
+                minY = Math.min(minY, cell.dy);
+                maxY = Math.max(maxY, cell.dy);
+            });
+
+            const dxWidth = (maxX - minX + 1) * LAT_A;
+            const dyHeight = (maxY - minY + 1) * LAT_B;
+            const ratio = (dxWidth / dyHeight).toFixed(2);
+            document.getElementById('stat-ratio').innerText = ratio;
+        }
+
+        // --- STAGE SWITCHER RULES ---
+        function switchStage(stageNum) {
+            currentStage = stageNum;
+
+            const btn1 = document.getElementById('btn-stage-1');
+            const btn2 = document.getElementById('btn-stage-2');
+            const btn3 = document.getElementById('btn-stage-3');
+            const btn4 = document.getElementById('btn-stage-4');
+
+            const ctrl1 = document.getElementById('controls-stage-1');
+            const ctrl2 = document.getElementById('controls-stage-2');
+            const ctrl3 = document.getElementById('controls-stage-3');
+            const ctrl4 = document.getElementById('controls-stage-4');
+
+            const viewportLabel = document.getElementById('lbl-viewport-stage');
+            const infoTitle = document.getElementById('panel-info-title');
+            const infoDesc = document.getElementById('panel-info-desc');
+
+            // Toggle layout configuration containers
+            [ctrl1, ctrl2, ctrl3, ctrl4].forEach(el => {
+                if (el) el.classList.add('hidden');
+            });
+            [btn1, btn2, btn3, btn4].forEach(btn => {
+                if (btn) btn.className = "py-2 text-[10px] text-center rounded-md font-semibold transition-all duration-200 text-slate-400 hover:text-white";
+            });
+
+            // Stop auto grows if switched away
+            if (stageNum !== 3 && isAutoGrowing) {
+                toggleAutoGrow();
+            }
+
+            // Stage visibility reset
+            nucleusGroup.visible = false;
+            orbital4p.visible = false;
+            shell4s.visible = false;
+            latticeGroup.visible = false;
+            crystalGroup.visible = false;
+            if (meltParticles) meltParticles.visible = false;
+
+            if (stageNum === 1) {
+                if (btn1) btn1.className = "py-2 text-[10px] text-center rounded-md font-semibold transition-all duration-200 bg-blue-600 text-white shadow";
+                if (ctrl1) ctrl1.classList.remove('hidden');
+
+                nucleusGroup.visible = true;
+                orbital4p.visible = true;
+                shell4s.visible = true;
+
+                viewportLabel.innerText = "Stage 1: Atomic Profile";
+                infoTitle.innerHTML = `<i class="fa-solid fa-microscope text-blue-400"></i> Understanding the 4p Orbital`;
+                infoDesc.innerText = "The atomic ground-state configuration of gallium is [Ar] 3d¹⁰ 4s² 4p¹. The final valence electron resides in a dumbbell-shaped p-orbital. Highly directional along its major coordinate axis, this orbital acts like an atomic anchor seeking a partner.";
+                
+                camera.position.set(0, 0, 14);
+                controls.target.set(0, 0, 0);
+
+            } else if (stageNum === 2) {
+                if (btn2) btn2.className = "py-2 text-[10px] text-center rounded-md font-semibold transition-all duration-200 bg-purple-600 text-white shadow";
+                if (ctrl2) ctrl2.classList.remove('hidden');
+
+                latticeGroup.visible = true;
+
+                viewportLabel.innerText = "Stage 2: Cmca Unit Cell";
+                infoTitle.innerHTML = `<i class="fa-solid fa-cubes text-purple-400"></i> The Covalent Dimer (Ga₂)`;
+                infoDesc.innerText = "Solid gallium has a unique base-centered orthorhombic lattice. Atoms lock into tightly paired dimers (Z=8 conventional / 4 covalent bonds). Each dimer pair is linked by exceptionally strong covalent bonds (2.44 Å), but neighboring pairs are held by weak metallic bonds.";
+                
+                camera.position.set(0, 4, 14);
+                controls.target.set(0, 0, 0);
+
+            } else if (stageNum === 3) {
+                if (btn3) btn3.className = "py-2 text-[10px] text-center rounded-md font-semibold transition-all duration-200 bg-emerald-600 text-white shadow";
+                if (ctrl3) ctrl3.classList.remove('hidden');
+
+                crystalGroup.visible = true;
+                if (meltParticles) meltParticles.visible = true;
+
+                viewportLabel.innerText = "Stage 3: Crystalline Platelet Growth";
+                infoTitle.innerHTML = `<i class="fa-solid fa-mountain text-emerald-400"></i> Anisotropic Growth Physics`;
+                infoDesc.innerText = "α-Gallium exhibits highly anisotropic growth rates. Covalent-like dimers spread and nucleate rapidly along the fast [100] (a-axis) and [001] (c-axis) plane, forming thin, flat crystalline plates. Stacking along the weakly metallic [010] (b-axis) stack is considerably slower.";
+                
+                camera.position.set(0, 10, 32);
+                controls.target.set(0, 0, 0);
+            } else if (stageNum === 4) {
+                if (btn4) btn4.className = "py-2 text-[10px] text-center rounded-md font-semibold transition-all duration-200 bg-amber-600 text-white shadow";
+                if (ctrl4) ctrl4.classList.remove('hidden');
+
+                // Keep crystal group active during the properties inspection stage so they can explore
+                crystalGroup.visible = true;
+
+                viewportLabel.innerText = "Stage 4: Physical, Electrical & Chemical Properties";
+                infoTitle.innerHTML = `<i class="fa-solid fa-flask text-amber-400"></i> Material Physics & Medium Oxidation`;
+                infoDesc.innerText = "Explore the macroscopic properties of gallium: raise the temperature to drive phonon structural vibrations, apply an electrical field to observe drift velocity of valence electrons, or change pH medium to dissolve the oxide film ($Ga_2O_3$).";
+
+                camera.position.set(0, 8, 24);
+                controls.target.set(0, 0, 0);
+                
+                // Re-sync medium layout states on click
+                changeMedium(currentMedium);
+                // Re-sync thermal state on click
+                updateThermodynamicState(activeThermodynamicState);
+            }
+            controls.update();
+        }
+
+        // --- MAIN ENGINE ANIMATION LOOP ---
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Core rotations inside Stage 1
+            if (currentStage === 1) {
+                if (nucleusGroup) {
+                    nucleusGroup.rotation.y += 0.005;
+                }
+                if (orbital4p) {
+                    orbital4p.rotation.y += 0.003;
+                }
+            }
+
+            // Animate transition particle bursts & impact sparks (Safeguarded from ReferenceErrors)
+            if (typeof transitionParticleGroup !== 'undefined' && transitionParticleGroup && transitionParticleGroup.children.length > 0) {
+                const ring = transitionParticleGroup.children[0];
+                if (ring && ring.material) {
+                    ring.scale.addScalar(0.08);
+                    ring.material.opacity -= 0.015;
+                    if (ring.material.opacity <= 0) {
+                        transitionParticleGroup.remove(ring);
+                    }
+                }
+
+                const particles = transitionParticleGroup.children[1] || transitionParticleGroup.children[0];
+                if (particles && particles.userData && particles.userData.velocities) {
+                    const posAttr = particles.geometry.attributes.position;
+                    const v = particles.userData.velocities;
+                    
+                    for (let i = 0; i < posAttr.count; i++) {
+                        posAttr.array[i * 3] += v[i].x;
+                        posAttr.array[i * 3 + 1] += v[i].y;
+                        posAttr.array[i * 3 + 2] += v[i].z;
+                    }
+                    posAttr.needsUpdate = true;
+                    particles.userData.age += 1;
+                    particles.material.opacity = 1.0 - (particles.userData.age / particles.userData.maxAge);
+
+                    if (particles.userData.age >= particles.userData.maxAge) {
+                        transitionParticleGroup.remove(particles);
+                    }
+                }
+            }
+
+            // --- MOLECULAR DYNAMICS LATTICE PHASE TRANSITIONS ---
+            if (crystalGroup.visible && crystalGroup.children.length > 0) {
+                const time = Date.now() * 0.003 * phononFrequencyVal;
+
+                crystalGroup.children.forEach(cellGroup => {
+                    const ud = cellGroup.userData;
+
+                    if (activeThermodynamicState < 1.0) {
+                        // 0 K (Perfect order) -> room temperature standard solid vibrations
+                        cellGroup.position.copy(ud.initPos);
+                        cellGroup.scale.setScalar(1.0); // Reset volume anomaly scale
+                        cellGroup.children.forEach(child => {
+                            if (child.isMesh && !child.userData.isSurface && child.userData && child.userData.localEquilibrium) {
+                                child.position.copy(child.userData.localEquilibrium);
+                            }
+                        });
+                    }
+                    else if (activeThermodynamicState >= 1.0 && activeThermodynamicState < 2.0) {
+                        // Solid to Liquid Phase: gradual lattice melting & anomalous volume contraction
+                        const f = activeThermodynamicState - 1.0;
+
+                        // 3.1% volume contraction gradual scale down
+                        const volumeContractScale = 1.0 - f * 0.0104; // 3.1% volume corresponds to ~1.04% linear contraction
+                        cellGroup.scale.setScalar(volumeContractScale);
+
+                        // Shear & Brownian Flow integration
+                        ud.driftPos.x += (Math.random() - 0.5) * 0.05 * f;
+                        ud.driftPos.y += (Math.random() - 0.5) * 0.05 * f;
+                        ud.driftPos.z += (Math.random() - 0.5) * 0.05 * f;
+                        
+                        // Fluid boundary confinement
+                        const fluidBound = 5.0;
+                        if (Math.abs(ud.driftPos.x) > fluidBound) ud.driftPos.x *= -0.9;
+                        if (Math.abs(ud.driftPos.y) > fluidBound) ud.driftPos.y *= -0.9;
+                        if (Math.abs(ud.driftPos.z) > fluidBound) ud.driftPos.z *= -0.9;
+
+                        // Smoothly Lerp cell coordinates based on liquid fraction 'f'
+                        cellGroup.position.lerpVectors(ud.initPos, ud.driftPos, f);
+
+                        let wavePhase = 0;
+                        if (activePhononAxis === 'a') wavePhase = ud.dx * 1.4;
+                        else if (activePhononAxis === 'b') wavePhase = ud.dy * 0.7;
+                        else if (activePhononAxis === 'c') wavePhase = ud.dz * 1.4;
+
+                        const displacement = Math.sin(time * 3 + wavePhase) * phononAmplitudeVal;
+
+                        cellGroup.children.forEach(child => {
+                            if (child.isMesh && !child.userData.isSurface && child.userData && child.userData.localEquilibrium) {
+                                const eq = child.userData.localEquilibrium;
+                                // Local micro oscillations
+                                if (activePhononAxis === 'a') {
+                                    child.position.set(eq.x + displacement, eq.y, eq.z);
+                                } else if (activePhononAxis === 'b') {
+                                    child.position.set(eq.x, eq.y + displacement, eq.z);
+                                } else if (activePhononAxis === 'c') {
+                                    child.position.set(eq.x, eq.y, eq.z + displacement);
+                                }
+                            }
+                        });
+                    }
+                    else if (activeThermodynamicState >= 2.0) {
+                        // Liquid to Boiling Gas Phase (Covalent bonds dissociate)
+                        const f = activeThermodynamicState - 2.0;
+
+                        // Cell centers fly apart in rapid kinetic gas expansion
+                        ud.phaseVel.x += (Math.random() - 0.5) * 0.04 * f;
+                        ud.phaseVel.y += (Math.random() - 0.5) * 0.04 * f;
+                        ud.phaseVel.z += (Math.random() - 0.5) * 0.04 * f;
+                        cellGroup.position.addScaledVector(ud.phaseVel, 1.0 + f * 1.5);
+
+                        // Expanding container boundaries
+                        const gasBound = 6.0 + f * 10.0;
+                        if (Math.abs(cellGroup.position.x) > gasBound) ud.phaseVel.x *= -1;
+                        if (Math.abs(cellGroup.position.y) > gasBound) ud.phaseVel.y *= -1;
+                        if (Math.abs(cellGroup.position.z) > gasBound) ud.phaseVel.z *= -1;
+
+                        cellGroup.children.forEach(child => {
+                            // FIXED: Added check to verify child.userData is defined before querying child.userData.localEquilibrium or gasDispersePos.
+                            // This ensures bonds and non-atomic meshes without these properties don't cause lerpVectors to crash with undefined targets.
+                            if (child.isMesh && !child.userData.isSurface && child.userData && child.userData.localEquilibrium && child.userData.gasDispersePos) {
+                                const eq = child.userData.localEquilibrium;
+                                const gasPos = child.userData.gasDispersePos;
+
+                                // Gradually lerp atoms away from dimer pairings to gaseous disperse positions
+                                child.position.lerpVectors(eq, gasPos, f);
+
+                                // Fade dimer bonds completely
+                                if (child.geometry && child.geometry.type === "CylinderGeometry") {
+                                    child.material.transparent = true;
+                                    child.material.opacity = (1.0 - f) * 0.85;
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+
+            // Drifting Valence Electrons drift animation (Stage 4 Electrical field)
+            if (electricFieldGroup.visible && electricFieldGroup.children.length > 0) {
+                const electrons = electricFieldGroup.children[0];
+                const posAttr = electrons.geometry.attributes.position;
+                const v = electrons.userData.velocities;
+
+                for (let i = 0; i < posAttr.count; i++) {
+                    // Drift along positive X axis representing applied E-field vector
+                    posAttr.array[i * 3] += v[i];
+                    
+                    // Recycle particles once they exit coordinate bounds
+                    if (posAttr.array[i * 3] > 10.0) {
+                        posAttr.array[i * 3] = -10.0;
+                    }
+                }
+                posAttr.needsUpdate = true;
+            }
+
+            // Slow rotate liquid melt cloud in Stage 3
+            if (currentStage === 3 && meltParticles) {
+                meltParticles.rotation.y += 0.001;
+            }
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+    </script>
+</body>
+</html>
