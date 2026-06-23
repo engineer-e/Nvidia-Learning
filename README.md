@@ -2,7 +2,7 @@
 
 | [Issac Lab](https://isaac-sim.github.io/IsaacLab/main/index.html) |  [Issac Sim](https://docs.isaacsim.omniverse.nvidia.com/latest/index.html) |
 | --- | --- |
-| | [download](https://docs.isaacsim.omniverse.nvidia.com/latest/installation/download.html), [install](https://docs.isaacsim.omniverse.nvidia.com/latest/installation/quick-install.html#), [Tutorial](https://docs.isaacsim.omniverse.nvidia.com/latest/introduction/quickstart_index.html)|
+| [install](https://isaac-sim.github.io/IsaacLab/main/source/setup/installation/isaaclab_pip_installation.html)| [download](https://docs.isaacsim.omniverse.nvidia.com/latest/installation/download.html), [install](https://docs.isaacsim.omniverse.nvidia.com/latest/installation/quick-install.html#), [Tutorial](https://docs.isaacsim.omniverse.nvidia.com/latest/introduction/quickstart_index.html)|
 
 [Donate 💖](https://engineer-e.github.io/Nvidia-Learning/donate/donate.html)
 
