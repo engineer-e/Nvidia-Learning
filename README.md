@@ -1,7 +1,8 @@
 # Nvidia-Learning
 
-[💖 Gallium Simulator using Gemini AI for learning Purpose.](https://engineer-e.github.io/Nvidia-Learning/chemistry/periodic_table/gallium.html)
-you can install Nvidia Omniverse, Issac Sim , Issac Lab separate as per current learning , but i installed issac lab for full process. to understand see the issacsim.
+[💖 Gallium Simulator using Google Gemini AI for learning Purpose.](https://engineer-e.github.io/Nvidia-Learning/chemistry/periodic_table/gallium.html)
+
+- you can install Nvidia Omniverse, Issac Sim , Issac Lab separate as per current learning , but i installed issac lab for full process. to understand see the issacsim.
 
 | [Issac Lab](https://isaac-sim.github.io/IsaacLab/main/index.html) |  [Issac Sim](https://docs.isaacsim.omniverse.nvidia.com/latest/index.html) |
 | --- | --- |
