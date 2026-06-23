@@ -1,5 +1,7 @@
 # Nvidia-Learning
 
+you can install Nvidia Omniverse, Issac Sim , Issac Lab separate as per current learning , but i installed issac lab for full process. to understand see the issacsim.
+
 | [Issac Lab](https://isaac-sim.github.io/IsaacLab/main/index.html) |  [Issac Sim](https://docs.isaacsim.omniverse.nvidia.com/latest/index.html) |
 | --- | --- |
 | [install](https://isaac-sim.github.io/IsaacLab/main/source/setup/quickstart.html)| [download](https://docs.isaacsim.omniverse.nvidia.com/latest/installation/download.html), [install](https://docs.isaacsim.omniverse.nvidia.com/latest/installation/quick-install.html#), [Tutorial](https://docs.isaacsim.omniverse.nvidia.com/latest/introduction/quickstart_index.html)|
